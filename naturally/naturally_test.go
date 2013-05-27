@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-var testdata = [...]string{"", "22", "Z22", "B22", "A0022", "A1"}
+var testdata = [...]string{"ZZZ", "22", "Z22", "B22", "A0022", "A1"}
 var testexp = [...]string{"", "22", "Z22", "B22", "A0022", "A1"}
 
 func TestSorts(t *testing.T) {

@@ -4,8 +4,7 @@ package naturally
 
 import (
 	"strconv"
-
-//"fmt"
+	"fmt"
 )
 
 // Naturally implements sort.Interface by providing Less and
@@ -19,18 +18,22 @@ func partition(s string, ch chan<- string) {
 	numeric := false
 	last := 0
 	for ii, c := range s {
+		fmt.Printf("===== Got %c at %v\n", c, ii)
 		if c >= '0' && c <= '9' {
+			fmt.Printf("======= is numeric\n" )
 			if numeric || last == ii {
-				// either at the beginning or
-				// already numeric -- move on
+				// either at start or already in numeric
+				// value.  Move on already numeric -- move on
 				numeric = true
 				continue
 			}
+			// end of numeric -- send back what we've got
 			r := s[last:ii]
+			fmt.Printf("===== Got a %v\n", r)
 			ch <- r
 			// numeric part starts at next char
 			last = ii + 1
-			numeric = true
+			numeric = false
 			continue
 		}
 		// non-numeric
@@ -38,6 +41,7 @@ func partition(s string, ch chan<- string) {
 			numeric = false
 			continue
 		}
+		// end of non-numeric
 		r := s[last:ii]
 		ch <- r
 		// numeric part starts at next char
@@ -45,6 +49,7 @@ func partition(s string, ch chan<- string) {
 		numeric = true
 		continue
 	}
+	ch <- s[last:]
 }
 
 func (p Naturally) Len() int {
@@ -58,14 +63,22 @@ func (p Naturally) Swap(a, b int) {
 func (p Naturally) Less(a, b int) bool {
 	// part string -- numeric and non
 	chA := make(chan string)
+	//defer close(chA)
 	chB := make(chan string)
+	//defer close(chB)
 
+	fmt.Printf("=== Comparing %v (%v) with %v (%v)\n",
+		p.Val[a], a, p.Val[b], b)
 	go partition(p.Val[a], chA)
 	go partition(p.Val[b], chB)
 
 	for {
+		fmt.Println("Start of loop")
 		partA, errA := <-chA
+		fmt.Printf("===  partA: %v errA: %v\n", partA, errA)
+		
 		partB, errB := <-chB
+		fmt.Printf("===  partB: %v errB: %v\n", partB, errB)
 		if errA {
 			// nothing more on A -- shorter or same as B
 			return true
