@@ -3,11 +3,12 @@
 package naturally
 
 import (
-		"strconv"
-		//"fmt"
-		)
+	"strconv"
 
-// Naturally implements sort.Interface by providing Less and 
+//"fmt"
+)
+
+// Naturally implements sort.Interface by providing Less and
 // using Len and Swap  methods of embedded []string
 type Naturally struct {
 	Val []string
@@ -65,11 +66,11 @@ func (p Naturally) Less(a, b int) bool {
 	for {
 		partA, errA := <-chA
 		partB, errB := <-chB
-		if !errA {
+		if errA {
 			// nothing more on A -- shorter or same as B
 			return true
 		}
-		if !errB {
+		if errB {
 			// nothing more on B -- shorter than A
 			return false
 		}
