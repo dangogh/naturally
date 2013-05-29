@@ -3,8 +3,8 @@
 package naturally
 
 import (
-	"strconv"
 	"fmt"
+	"strconv"
 )
 
 // Naturally implements sort.Interface by providing Less and
@@ -15,25 +15,23 @@ type Naturally struct {
 
 // partition string into numeric and non-numeric parts
 func partition(s string, ch chan<- string) {
+	defer close(ch)
 	numeric := false
 	last := 0
 	for ii, c := range s {
-		fmt.Printf("===== Got %c at %v\n", c, ii)
 		if c >= '0' && c <= '9' {
-			fmt.Printf("======= is numeric\n" )
 			if numeric || last == ii {
 				// either at start or already in numeric
-				// value.  Move on already numeric -- move on
+				// value.  move on
 				numeric = true
 				continue
 			}
-			// end of numeric -- send back what we've got
+			// end of non-numeric -- send back what we've got
 			r := s[last:ii]
-			fmt.Printf("===== Got a %v\n", r)
 			ch <- r
-			// numeric part starts at next char
-			last = ii + 1
-			numeric = false
+			// numeric part starts at this char
+			last = ii
+			numeric = true
 			continue
 		}
 		// non-numeric
@@ -41,12 +39,12 @@ func partition(s string, ch chan<- string) {
 			numeric = false
 			continue
 		}
-		// end of non-numeric
+		// end of numeric
 		r := s[last:ii]
 		ch <- r
 		// numeric part starts at next char
-		last = ii + 1
-		numeric = true
+		last = ii
+		numeric = false
 		continue
 	}
 	ch <- s[last:]
@@ -74,21 +72,24 @@ func (p Naturally) Less(a, b int) bool {
 
 	for {
 		fmt.Println("Start of loop")
-		partA, errA := <-chA
-		fmt.Printf("===  partA: %v errA: %v\n", partA, errA)
-		
-		partB, errB := <-chB
-		fmt.Printf("===  partB: %v errB: %v\n", partB, errB)
-		if errA {
+		partA, okA := <-chA
+		fmt.Printf("===  partA: %v okA: %v\n", partA, okA)
+		if !okA {
 			// nothing more on A -- shorter or same as B
+			fmt.Printf("===== nothing more on partA\n")
 			return true
 		}
-		if errB {
+
+		partB, okB := <-chB
+		fmt.Printf("===  partB: %v okB: %v\n", partB, okB)
+		if !okB {
 			// nothing more on B -- shorter than A
+			fmt.Printf("===== nothing more on partB\n")
 			return false
 		}
 		if partA == partB {
 			// same -- move on
+			fmt.Printf("===== partA == partB\n")
 			continue
 		}
 
@@ -97,17 +98,22 @@ func (p Naturally) Less(a, b int) bool {
 		intB, errintB := strconv.Atoi(partB)
 		if errintA != errintB {
 			// if A numeric, A less else B less
+			fmt.Printf("===== only one of partA, partB numeric\n")
 			return errintA == nil
 		}
 		if errintA == nil {
+			fmt.Printf("===== compare numerically\n")
 			// both numeric: compare numerically
 			if intA == intB {
 				// same value -- leading 0's
+				fmt.Printf("===== same value\n")
 				return len(partA) > len(partB)
 			}
+			fmt.Printf("===== a < b? %v\n", (intA<intB))
 			return intA < intB
 		}
 		// both string
+		fmt.Printf("===== a before b? %v\n", (partA < partB))
 		return partA < partB
 	}
 	return true

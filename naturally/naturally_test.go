@@ -6,8 +6,8 @@ import (
 	"testing"
 )
 
-var testdata = [...]string{"ZZZ", "22", "Z22", "B22", "A0022", "A1"}
-var testexp = [...]string{"", "22", "Z22", "B22", "A0022", "A1", "ZZZ"}
+var testdata = [...]string{"A1", "A0", "A21", "A11", "A111", "A2"}
+var testexp = [...]string{"A0", "A1", "A2", "A11", "A21", "A111"}
 
 func TestSorts(t *testing.T) {
 	n := naturally.Naturally{testdata[0:]}
