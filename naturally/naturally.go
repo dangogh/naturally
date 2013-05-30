@@ -3,7 +3,6 @@
 package naturally
 
 import (
-	"fmt"
 	"strconv"
 )
 
@@ -65,31 +64,23 @@ func (p Naturally) Less(a, b int) bool {
 	chB := make(chan string)
 	//defer close(chB)
 
-	fmt.Printf("=== Comparing %v (%v) with %v (%v)\n",
-		p.Val[a], a, p.Val[b], b)
 	go partition(p.Val[a], chA)
 	go partition(p.Val[b], chB)
 
 	for {
-		fmt.Println("Start of loop")
 		partA, okA := <-chA
-		fmt.Printf("===  partA: %v okA: %v\n", partA, okA)
 		if !okA {
 			// nothing more on A -- shorter or same as B
-			fmt.Printf("===== nothing more on partA\n")
 			return true
 		}
 
 		partB, okB := <-chB
-		fmt.Printf("===  partB: %v okB: %v\n", partB, okB)
 		if !okB {
 			// nothing more on B -- shorter than A
-			fmt.Printf("===== nothing more on partB\n")
 			return false
 		}
 		if partA == partB {
 			// same -- move on
-			fmt.Printf("===== partA == partB\n")
 			continue
 		}
 
@@ -98,22 +89,17 @@ func (p Naturally) Less(a, b int) bool {
 		intB, errintB := strconv.Atoi(partB)
 		if errintA != errintB {
 			// if A numeric, A less else B less
-			fmt.Printf("===== only one of partA, partB numeric\n")
 			return errintA == nil
 		}
 		if errintA == nil {
-			fmt.Printf("===== compare numerically\n")
 			// both numeric: compare numerically
 			if intA == intB {
 				// same value -- leading 0's
-				fmt.Printf("===== same value\n")
 				return len(partA) > len(partB)
 			}
-			fmt.Printf("===== a < b? %v\n", (intA<intB))
 			return intA < intB
 		}
 		// both string
-		fmt.Printf("===== a before b? %v\n", (partA < partB))
 		return partA < partB
 	}
 	return true
