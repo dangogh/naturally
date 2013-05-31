@@ -17,7 +17,7 @@ var testdata2 = [...]string{"A1", "A0", "A21", "A11", "A111", "A2"}
 var testexp2 = [...]string{"A0", "A1", "A2", "A11", "A21", "A111"}
 
 var testdata3 = [...]string{"A2A", "A0", "A1", "A", "AA0", "A0A", "A11A"}
-var testexp3 = [...]string{"A", "A0", "A0A", "A1", "A2A", "A2", "A11A"}
+var testexp3 = [...]string{"A", "A0", "A0A", "A1", "A11A", "A2A", "AA0"}
 
 func _testSorts(t *testing.T, data, expected []string) {
 	n := naturally.Naturally{data[0:]}
