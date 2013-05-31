@@ -60,9 +60,7 @@ func (p Naturally) Swap(a, b int) {
 func (p Naturally) Less(a, b int) bool {
 	// part string -- numeric and non
 	chA := make(chan string)
-	//defer close(chA)
 	chB := make(chan string)
-	//defer close(chB)
 
 	go partition(p.Val[a], chA)
 	go partition(p.Val[b], chB)
@@ -87,20 +85,21 @@ func (p Naturally) Less(a, b int) bool {
 		// not same string -- check numeric vals
 		intA, errintA := strconv.Atoi(partA)
 		intB, errintB := strconv.Atoi(partB)
-		if errintA != errintB {
-			// if A numeric, A less else B less
-			return errintA == nil
-		}
 		if errintA == nil {
-			// both numeric: compare numerically
-			if intA == intB {
-				// same value -- leading 0's
-				return len(partA) > len(partB)
+			// A numeric
+			if errintB == nil {
+				// A & B numeric
+				return intA < intB
 			}
-			return intA < intB
+			return true
+		}
+		// A not numeric
+		if errintB == nil {
+			return false
 		}
 		// both string
 		return partA < partB
 	}
+	// reached the end
 	return true
 }

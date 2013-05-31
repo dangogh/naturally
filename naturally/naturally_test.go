@@ -11,13 +11,13 @@ var testdata0 = [...]string{"A1", "A0", "A21", "A11", "A111", "A2"}
 var testexp0 = [...]string{"A0", "A1", "A2", "A11", "A21", "A111"}
 
 var testdata1 = [...]string{"1", "2", "30", "22", "0", "00", "3"}
-var testexp1 = [...]string{"00", "0", "1", "2", "3", "22", "30"}
+var testexp1 = [...]string{"0", "00", "1", "2", "3", "22", "30"}
 
 var testdata2 = [...]string{"A1", "A0", "A21", "A11", "A111", "A2"}
 var testexp2 = [...]string{"A0", "A1", "A2", "A11", "A21", "A111"}
 
 var testdata3 = [...]string{"A2A", "A0", "A1", "A", "AA0", "A0A", "A11A"}
-var testexp3 = [...]string{"A", "A0", "A0A", "A1", "A11A", "A2A", "AA0"}
+var testexp3 = [...]string{"A", "A0", "A0A", "A1", "A2A", "A11A", "AA0"}
 
 func _testSorts(t *testing.T, data, expected []string) {
 	n := naturally.Naturally{data[0:]}
@@ -27,6 +27,8 @@ func _testSorts(t *testing.T, data, expected []string) {
 		exp := expected[ii]
 		if got != exp {
 			t.Errorf("Got %v; expected %v\n", got, exp)
+			fmt.Printf("Got %v; expected %v\n", got, exp)
+			
 		}
 	}
 }
