@@ -1,7 +1,7 @@
 package naturally_test
 
 import (
-	"github.com/user/naturally"
+	"github.com/dangogh/naturally"
 	"sort"
 	"testing"
 	"fmt"
