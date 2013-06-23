@@ -3,8 +3,7 @@
 package naturally
 
 import (
-        "fmt"
-	//"strconv"
+	"strconv"
 )
 
 // Naturally implements sort.Interface by providing Less and
@@ -21,14 +20,6 @@ func (p Naturally) Swap(a, b int) {
 	p.Val[a], p.Val[b] = p.Val[b], p.Val[a]
 }
 
-func trace(isnumeric bool, val string) {
-        t := "alpha"
-        if isnumeric {
-                t = "num"
-        }
-        fmt.Printf("%s %v\n", t, val)
-}
-
 func partition(s string) (parts []string ) {
         isnumeric := false
         last := 0
@@ -39,14 +30,12 @@ func partition(s string) (parts []string ) {
                         continue
                 }
                 if isnumeric != isdigit {
-                        trace(isnumeric, s[last:ii])
                         parts = append(parts, s[last:ii])
                         isnumeric = isdigit
                         last = ii
                 }
         }
         ii := len(s)
-        trace(isnumeric, s[last:ii])
         parts = append(parts, s[last:ii])
         return parts
 }
@@ -55,14 +44,22 @@ func (p Naturally) Less(a, b int) bool {
 	// part string -- numeric and non
         partsA := partition(p.Val[a])
         partsB := partition(p.Val[b])
-        less := true
+        // if equal up to end of one, shorter of the two is less
+        less := len(partsA) < len(partsB)
         for ii, ca := range partsA {
                 if ii >= len(partsB) {
                         break
                 }
                 cb := partsB[ii]
                 if ca != cb {
-                        less = (ca < cb)
+                        if ia, err := strconv.Atoi(ca); err != nil {
+                                // non-numeric 
+                                less = (ca < cb)
+                        } else {
+                                // numeric
+                                ib, _ := strconv.Atoi(cb)
+                                less = (ia < ib)
+                        }
                         break
                 }
         }
