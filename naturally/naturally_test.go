@@ -40,7 +40,15 @@ func TestSortsB(t *testing.T) {
 	fmt.Println("TestB")
 	_testSorts(t, testdata1[0:], testexp1[0:])
 }
+
 func TestSortsC(t *testing.T) {
 	fmt.Println("TestC")
 	_testSorts(t, testdata2[0:], testexp2[0:])
+}
+
+func BenchmarkSortNaturally(b *testing.B) {
+        for ii := 0; ii < b.N; ii++ {
+                n := naturally.Naturally{testdata2[0:]}
+                sort.Sort(n)
+        }
 }
