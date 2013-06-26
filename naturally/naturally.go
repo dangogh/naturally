@@ -3,6 +3,7 @@
 package naturally
 
 import (
+        "strings"
 	"strconv"
 )
 
@@ -34,26 +35,24 @@ func partition(s string) (parts []string ) {
 
 func (p StringSlice) Less(a, b int) bool {
 	// part string -- numeric and non
-        partsA := partition(p[a])
-        partsB := partition(p[b])
-        // if equal up to end of one, shorter of the two is less
-        less := len(partsA) < len(partsB)
-        for ii, ca := range partsA {
-                if ii >= len(partsB) {
-                        break
-                }
-                cb := partsB[ii]
-                if ca != cb {
-                        if ia, err := strconv.Atoi(ca); err != nil {
-                                // non-numeric 
-                                less = (ca < cb)
-                        } else {
-                                // numeric
-                                ib, _ := strconv.Atoi(cb)
-                                less = (ia < ib)
-                        }
-                        break
+        sA,sB := p[a][0:], p[b][0:]
+        digits := "0123456789"
+        var idxA, idxB int
+        for {
+                idxA = strings.IndexAny(sA, digits)
+                idxB = strings.IndexAny(sB, digits)
+                switch {
+                case idxA == -1:
+
+                case idxB == -1:
+                        return false
+                case sA[0:idxA] == sA[0:idxB]:
+                        sA, sB = sA[idxA+1:], sB[idxB+1:]
+                        continue
+                case idxA == 0:
+                        return strconv.Atoi(sA) < strconv.Atoi(sB)
+                default:
+                        return sA < sB
                 }
         }
-	return less
 }
