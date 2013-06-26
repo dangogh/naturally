@@ -1,4 +1,4 @@
-// Implements "Naturally" sort -- alphabetic portion sorted
+// Implements "natural" sort -- alphabetic portion sorted
 // alphabetically, numeric part sorted numerically.
 package naturally
 
@@ -6,19 +6,11 @@ import (
 	"strconv"
 )
 
-// Naturally implements sort.Interface by providing Less and
-// using Len and Swap  methods of embedded []string
-type Naturally struct {
-	Val []string
-}
+// Naturally implements sort.Interface
+type StringSlice []string
 
-func (p Naturally) Len() int {
-	return len(p.Val)
-}
-
-func (p Naturally) Swap(a, b int) {
-	p.Val[a], p.Val[b] = p.Val[b], p.Val[a]
-}
+func (p StringSlice) Len() int { return len(p) }
+func (p StringSlice) Swap(a, b int) { p[a], p[b] = p[b], p[a] }
 
 func partition(s string) (parts []string ) {
         isnumeric := false
@@ -40,10 +32,10 @@ func partition(s string) (parts []string ) {
         return parts
 }
 
-func (p Naturally) Less(a, b int) bool {
+func (p StringSlice) Less(a, b int) bool {
 	// part string -- numeric and non
-        partsA := partition(p.Val[a])
-        partsB := partition(p.Val[b])
+        partsA := partition(p[a])
+        partsB := partition(p[b])
         // if equal up to end of one, shorter of the two is less
         less := len(partsA) < len(partsB)
         for ii, ca := range partsA {

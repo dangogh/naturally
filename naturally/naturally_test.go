@@ -18,7 +18,7 @@ var testdata2 = [...]string{"A1BA1", "A11AA1", "A2AB0", "B1AA1", "A1AA1"}
 var testexp2 = [...]string{"A1AA1", "A1BA1", "A2AB0", "A11AA1", "B1AA1"}
 
 func _testSorts(t *testing.T, data, expected []string) {
-	n := naturally.Naturally{data[0:]}
+	n := naturally.StringSlice(data[0:])
 	sort.Sort(n)
 
 	for ii, got := range data {
@@ -47,8 +47,22 @@ func TestSortsC(t *testing.T) {
 }
 
 func BenchmarkSortNaturally(b *testing.B) {
+        b.StopTimer()
         for ii := 0; ii < b.N; ii++ {
-                n := naturally.Naturally{testdata2[0:]}
+                n := naturally.StringSlice(testdata2[0:])
+                b.StartTimer()
                 sort.Sort(n)
+                b.StopTimer()
+        }
+}
+
+
+func BenchmarkSort(b *testing.B) {
+        b.StopTimer()
+        for ii := 0; ii < b.N; ii++ {
+                n := sort.StringSlice(testdata2[0:])
+                b.StartTimer()
+                sort.Sort(n)
+                b.StopTimer()
         }
 }
