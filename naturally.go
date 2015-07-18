@@ -3,56 +3,81 @@
 package naturally
 
 import (
-        "strings"
+	"fmt"
+	"sort"
 	"strconv"
+	"strings"
+	"unicode"
 )
 
 // Naturally implements sort.Interface
-type StringSlice []string
+type StringSlice sort.StringSlice
 
-func (p StringSlice) Len() int { return len(p) }
+func (p StringSlice) Len() int      { return len(p) }
 func (p StringSlice) Swap(a, b int) { p[a], p[b] = p[b], p[a] }
 
-func partition(s string) (parts []string ) {
-        isnumeric := false
-        last := 0
-        for ii, c := range s {
-                isdigit := (c >= '0' && c <= '9')
-                if ii == last {
-                        isnumeric = isdigit
-                        continue
-                }
-                if isnumeric != isdigit {
-                        parts = append(parts, s[last:ii])
-                        isnumeric = isdigit
-                        last = ii
-                }
-        }
-        ii := len(s)
-        parts = append(parts, s[last:ii])
-        return parts
+func isNonDigit(ch rune) bool {
+	return !unicode.IsDigit(ch)
 }
 
 func (p StringSlice) Less(a, b int) bool {
-	// part string -- numeric and non
-        sA,sB := p[a][0:], p[b][0:]
-        digits := "0123456789"
-        var idxA, idxB int
-        for {
-                idxA = strings.IndexAny(sA, digits)
-                idxB = strings.IndexAny(sB, digits)
-                switch {
-                case idxA == -1:
+	strA := p[a][:]
+	strB := p[b][:]
+	//fmt.Println(strA, " <=> ", strB)
 
-                case idxB == -1:
-                        return false
-                case sA[0:idxA] == sA[0:idxB]:
-                        sA, sB = sA[idxA+1:], sB[idxB+1:]
-                        continue
-                case idxA == 0:
-                        return strconv.Atoi(sA) < strconv.Atoi(sB)
-                default:
-                        return sA < sB
-                }
-        }
+	for {
+		// get chars up to 1st digit
+		posA := strings.IndexFunc(strA, unicode.IsDigit)
+		posB := strings.IndexFunc(strB, unicode.IsDigit)
+
+		if posA == -1 {
+			// no digits in A
+			if posB == -1 {
+				// or B -- straight string compare
+				return strA < strB
+			}
+			return true // A is Less
+		} else if posB == -1 {
+			return false // B is Less
+		}
+		subA, subB := strA[:posA], strB[:posB]
+		if subA != subB {
+			return subA < subB
+		}
+		strA, strB = strA[posA:], strB[posB:]
+
+		// get chars up to 1st non-digit
+		posA = strings.IndexFunc(strA, isNonDigit)
+		posB = strings.IndexFunc(strB, isNonDigit)
+		if posA == -1 {
+			// no non-digits in A - allow numeric compare
+			//fmt.Println(posA, " pos in ", strA)
+			posA = len(strA)
+		}
+		if posB == -1 {
+			// no non-digits in B - allow numeric compare
+			posB = len(strB)
+		}
+
+		// grab numeric part of each
+		valA, err := strconv.Atoi(strA[:posA])
+		if err != nil {
+			panic(fmt.Sprintf("Can't convert %s to a number", strA[:posA]))
+		}
+		valB, err := strconv.Atoi(strB[:posB])
+		if err != nil {
+			panic(fmt.Sprintf("Can't convert %s to a number", strA[:posA]))
+		}
+		if valA != valB {
+			return valA < valB
+		}
+		if posA != posB {
+			return posA < posB
+		}
+		if posA >= len(strA) || posB >= len(strB) {
+			// should only happen if strings equal
+			return true
+		}
+		strA, strB = strA[posA:], strB[posB:]
+	}
 }
