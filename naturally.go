@@ -36,9 +36,9 @@ func (p StringSlice) Less(a, b int) bool {
 				// or B -- straight string compare
 				return strA < strB
 			}
-			return true // A is Less
-		} else if posB == -1 {
 			return false // B is Less
+		} else if posB == -1 {
+			return true // A is Less
 		}
 		subA, subB := strA[:posA], strB[:posB]
 		if subA != subB {
