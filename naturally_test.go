@@ -7,8 +7,8 @@ import (
 	"testing"
 )
 
-var testdata0 = [...]string{"A1", "A0", "A21", "A11", "A111", "A2"}
-var testexp0 = [...]string{"A0", "A1", "A2", "A11", "A21", "A111"}
+var testdata0 = [...]string{"A1", "A0", "A21", "A11", "A111", "A21", "A2"}
+var testexp0 = [...]string{"A0", "A1", "A2", "A11", "A21", "A21", "A111"}
 
 // numeric only
 var testdata1 = [...]string{"001", "2", "xyzzy", "30", "22", "0", "00", "3", "1"}
@@ -16,6 +16,10 @@ var testexp1 = [...]string{"0", "00", "1", "001", "2", "3", "22", "30", "xyzzy"}
 
 var testdata2 = [...]string{"A1BA1", "A11AA1", "A2AB0", "B1AA1", "A1AA1"}
 var testexp2 = [...]string{"A1AA1", "A1BA1", "A2AB0", "A11AA1", "B1AA1"}
+
+// non-numeric only
+var testdata3 = [...]string{"ZZ", "XX", "AAA", "A", "AA", "Z", "XX"}
+var testexp3 = [...]string{"A", "AA", "AAA", "XX", "XX", "Z", "ZZ"}
 
 func _testSorts(t *testing.T, data, expected []string) {
 	n := naturally.StringSlice(data[0:])
@@ -44,6 +48,11 @@ func TestSortsB(t *testing.T) {
 func TestSortsC(t *testing.T) {
 	fmt.Println("TestC")
 	_testSorts(t, testdata2[0:], testexp2[0:])
+}
+
+func TestSortsD(t *testing.T) {
+	fmt.Println("TestD")
+	_testSorts(t, testdata3[0:], testexp3[0:])
 }
 
 func BenchmarkSortNaturally(b *testing.B) {
