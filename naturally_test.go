@@ -1,7 +1,6 @@
 package naturally_test
 
 import (
-	"fmt"
 	"github.com/dangogh/naturally"
 	"sort"
 	"testing"
@@ -29,29 +28,24 @@ func _testSorts(t *testing.T, data, expected []string) {
 		exp := expected[ii]
 		if got != exp {
 			t.Errorf("Got %v; expected %v\n", got, exp)
-			fmt.Printf("Got %v; expected %v\n", got, exp)
 
 		}
 	}
 }
 
 func TestSortsA(t *testing.T) {
-	fmt.Println("TestA")
 	_testSorts(t, testdata0[0:], testexp0[0:])
 }
 
 func TestSortsB(t *testing.T) {
-	fmt.Println("TestB")
 	_testSorts(t, testdata1[0:], testexp1[0:])
 }
 
 func TestSortsC(t *testing.T) {
-	fmt.Println("TestC")
 	_testSorts(t, testdata2[0:], testexp2[0:])
 }
 
 func TestSortsD(t *testing.T) {
-	fmt.Println("TestD")
 	_testSorts(t, testdata3[0:], testexp3[0:])
 }
 
