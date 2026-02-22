@@ -3,7 +3,6 @@
 package naturally
 
 import (
-	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -25,6 +24,9 @@ func (p StringSlice) Less(a, b int) bool {
 	strB := p[b][:]
 	//fmt.Println(strA, " <=> ", strB)
 
+	if strA == strB {
+		return false
+	}
 	for {
 		// get chars up to 1st digit
 		posA := strings.IndexFunc(strA, unicode.IsDigit)
@@ -60,13 +62,11 @@ func (p StringSlice) Less(a, b int) bool {
 		}
 
 		// grab numeric part of each
-		valA, err := strconv.Atoi(strA[:posA])
-		if err != nil {
-			panic(fmt.Sprintf("Can't convert %s to a number", strA[:posA]))
-		}
-		valB, err := strconv.Atoi(strB[:posB])
-		if err != nil {
-			panic(fmt.Sprintf("Can't convert %s to a number", strA[:posA]))
+		valA, errA := strconv.Atoi(strA[:posA])
+		valB, errB := strconv.Atoi(strB[:posB])
+		if errA != nil || errB != nil {
+			// fall back to string comparison for unparseable digits (e.g. non-ASCII)
+			return strA[:posA] < strB[:posB]
 		}
 		if valA != valB {
 			return valA < valB
