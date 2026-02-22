@@ -63,7 +63,7 @@ func TestLess(t *testing.T) {
 
 		// one string ends in number, other continues
 		{"a ends at num b continues", "A1", "A1B", true},
-		{"a continues b ends at num", "A1B", "A1", true}, // posB >= len(strB) branch returns true
+		{"a continues b ends at num", "A1B", "A1", false}, // A1B > A1: longer string with extra content sorts after
 
 		// purely numeric strings
 		{"pure num 1<2", "1", "2", true},

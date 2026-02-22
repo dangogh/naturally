@@ -75,8 +75,7 @@ func (p StringSlice) Less(a, b int) bool {
 			return posA < posB
 		}
 		if posA >= len(strA) || posB >= len(strB) {
-			// should only happen if strings equal
-			return true
+			return len(strA) < len(strB)
 		}
 		strA, strB = strA[posA:], strB[posB:]
 	}
