@@ -221,6 +221,72 @@ func TestSort(t *testing.T) {
 	}
 }
 
+func TestCILess(t *testing.T) {
+	tests := []struct {
+		name string
+		a, b string
+		want bool
+	}{
+		{"same case equal", "A1", "A1", false},
+		{"diff case equal", "A1", "a1", false},
+		{"diff case equal rev", "a1", "A1", false},
+		{"ci lower before upper", "a1", "B1", true},
+		{"ci upper before lower", "B1", "a1", false},
+		{"ci same letter diff num", "a2", "A11", true},
+		{"ci multi segment", "a1b2", "A1B3", true},
+		{"ci multi segment rev", "A1B3", "a1b2", false},
+		{"ci pure alpha", "abc", "ABC", false},
+		{"ci pure alpha diff", "abc", "ABD", true},
+		{"ci realistic files", "IMG10.png", "img2.png", false},
+		{"ci realistic files rev", "img2.png", "IMG10.png", true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := naturally.CIStringSlice{tt.a, tt.b}
+			got := s.Less(0, 1)
+			if got != tt.want {
+				t.Errorf("CIStringSlice.Less(%q, %q) = %v, want %v", tt.a, tt.b, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestSortCI(t *testing.T) {
+	input := []string{"B1", "a2", "A1", "b2", "a11", "A2"}
+	expected := []string{"A1", "a2", "A2", "a11", "B1", "b2"}
+	naturally.SortCI(input)
+
+	for i := range input {
+		if input[i] != expected[i] {
+			t.Errorf("index %d: got %q, want %q (full result: %v)", i, input[i], expected[i], input)
+			break
+		}
+	}
+}
+
+func TestSortConvenience(t *testing.T) {
+	input := []string{"a3", "a1", "a2"}
+	expected := []string{"a1", "a2", "a3"}
+	naturally.Sort(input)
+
+	for i := range input {
+		if input[i] != expected[i] {
+			t.Errorf("index %d: got %q, want %q", i, input[i], expected[i])
+			break
+		}
+	}
+}
+
+func BenchmarkSortCI(b *testing.B) {
+	src := []string{"A1BA1", "a11aa1", "A2AB0", "b1AA1", "a1aA1"}
+	for i := 0; i < b.N; i++ {
+		data := make([]string, len(src))
+		copy(data, src)
+		sort.Sort(naturally.CIStringSlice(data))
+	}
+}
+
 func BenchmarkSortNaturally(b *testing.B) {
 	src := []string{"A1BA1", "A11AA1", "A2AB0", "B1AA1", "A1AA1"}
 	for i := 0; i < b.N; i++ {
