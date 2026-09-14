@@ -81,6 +81,9 @@ func TestLess(t *testing.T) {
 		// non-ASCII digits (fallback to string comparison)
 		{"arabic-indic digits", "A٣", "A٤", true},
 		{"arabic-indic vs ascii", "A٣", "A3", false},
+		// equal non-ASCII runs must not short-circuit -- comparison continues
+		{"arabic-indic equal run then text", "A٣b", "A٣c", true},
+		{"arabic-indic equal run then text rev", "A٣c", "A٣b", false},
 
 		// mixed case
 		{"case sensitive lower<upper", "a1", "B1", false},
@@ -89,6 +92,17 @@ func TestLess(t *testing.T) {
 		// large numbers
 		{"large numbers", "file999", "file1000", true},
 		{"large numbers rev", "file1000", "file999", false},
+
+		// numbers beyond int64 -- must still compare by value, not lexically
+		{"int64 boundary", "x9223372036854775807", "x9223372036854775808", true},
+		{"int64 boundary rev", "x9223372036854775808", "x9223372036854775807", false},
+		{"overflow fewer digits first", "x99999999999999999999", "x100000000000000000000", true},
+		{"overflow more digits second", "x100000000000000000000", "x99999999999999999999", false},
+		{"overflow same width", "x99999999999999999998", "x99999999999999999999", true},
+		{"overflow same width rev", "x99999999999999999999", "x99999999999999999998", false},
+		{"overflow equal", "x99999999999999999999", "x99999999999999999999", false},
+		{"overflow leading zeros", "x0000000000000000000001", "x000000000000000000001", false},
+		{"overflow mixed widths", "x00000000000000000000009", "x10000000000000000000", true},
 
 		// adjacent numeric segments with different text separators
 		{"adj segments", "X1Y2", "X1Z1", true},
@@ -239,6 +253,17 @@ func TestCILess(t *testing.T) {
 		{"ci pure alpha diff", "abc", "ABD", true},
 		{"ci realistic files", "IMG10.png", "img2.png", false},
 		{"ci realistic files rev", "img2.png", "IMG10.png", true},
+
+		// case-insensitive prefixes: shorter sorts first regardless of case
+		{"ci prefix shorter", "AB", "abc", true},
+		{"ci prefix longer", "abc", "AB", false},
+		{"ci prefix shorter with digits", "AB1", "abc1", true},
+		{"ci prefix longer with digits", "abc1", "AB1", false},
+		{"ci empty vs alpha", "", "A", true},
+		{"ci alpha vs empty", "A", "", false},
+		// non-ASCII folding
+		{"ci non-ascii fold", "\u00c9clair", "\u00e9CLAIRE", true},
+		{"ci non-ascii fold rev", "\u00e9CLAIRE", "\u00c9clair", false},
 	}
 
 	for _, tt := range tests {
